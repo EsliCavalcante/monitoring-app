@@ -6,7 +6,10 @@ const App = () => {
 	return (
 		<BrowserRouter>
 			<Routes>
-				<Route path="/" element={<TemperatureListPage />} />
+				<Route
+					path="/monitoring-app/"
+					element={<TemperatureListPage />}
+				/>
 				<Route
 					path="/temperature-monitoring-preview"
 					element={<PreviewDocumentPage />}

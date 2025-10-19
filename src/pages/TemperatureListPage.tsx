@@ -94,7 +94,7 @@ const TemperatureListPage = () => {
 		>
 			<div className=" ring-gray-300 ring bg-gray-50  rounded-sm sm:rounded-none">
 				<div className="container flex justify-between items-center mx-auto px-3  h-full text-lg sm:text-3xl">
-					<h2 className="">Monitoramento de temperatura</h2>
+					<h2 className="">Monitoramento de temperatura </h2>
 					<Button
 						disabled={uploadedData.length > 0 ? false : true}
 						onClick={handleOpenPdf}

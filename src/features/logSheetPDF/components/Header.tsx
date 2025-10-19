@@ -52,7 +52,10 @@ const Header = (props: { settings: SettingType }) => {
 	return (
 		<View style={styles.header}>
 			<View style={styles.logo}>
-				<Image style={{ width: 120 }} src={"./reeferbras-logo.png"} />
+				<Image
+					style={{ width: 120 }}
+					src={`${import.meta.env.BASE_URL}/reeferbras-logo.png`}
+				/>
 			</View>
 
 			<View style={styles.vessel}>

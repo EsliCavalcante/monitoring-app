@@ -83,17 +83,14 @@ const styles = StyleSheet.create({
 	},
 });
 // import "../../../../public/Vector.png"
-const Checkbox = ({ checked, label }: { checked: boolean; label: string }) => (
+const Checkbox = ({ label }: { checked: boolean; label: string }) => (
 	<View style={styles.row}>
 		<Text style={styles.label}>{label}</Text>
-		<View
-			style={checked ? styles["box-checked"] : styles["box-no-checked"]}
-		>
-			{checked ? (
-				<Image style={{ width: 8 }} src="/Vector.png" />
-			) : (
-				<View />
-			)}
+		<View style={styles["box-checked"]}>
+			<Image
+				style={{ width: 8 }}
+				src={`${import.meta.env.BASE_URL}/vector.png`}
+			/>
 		</View>
 	</View>
 );
