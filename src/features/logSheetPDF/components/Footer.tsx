@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
 		justifyContent: "center",
 	},
 });
-// import "../../../../public/Vector.png"
+
 const Checkbox = ({ label }: { checked: boolean; label: string }) => (
 	<View style={styles.row}>
 		<Text style={styles.label}>{label}</Text>

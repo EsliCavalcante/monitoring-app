@@ -15,7 +15,7 @@ export function temperatureGenarete() {
 			}
 
 			if (temp === -1.0) {
-				return getRandomDecimal(0.1, 0.2) + temp;
+				return getRandomDecimal(0.1, 0.3) + temp;
 			}
 
 			if (temp >= 0) {
@@ -35,7 +35,7 @@ export function temperatureGenarete() {
 			}
 
 			if (temp === -1.0) {
-				return getRandomDecimal(0.1, 0.9) + temp;
+				return getRandomDecimal(1.1, 1.3) + temp;
 			}
 
 			if (temp >= 0) {

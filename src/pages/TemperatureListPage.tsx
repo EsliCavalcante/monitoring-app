@@ -32,6 +32,7 @@ import UploadButton from "@/features/temperatureMonitoring/components/UploadButt
 import { usePagination } from "@/features/temperatureMonitoring/hooks/usePagination";
 import { formatTemperature } from "@/utils/formatTemperature";
 import { temperatureGenarete } from "@/utils/temperatureGenerate";
+import { Spinner } from "@/components/ui/spinner";
 
 type DataUploaded = {
 	id: number;
@@ -67,31 +68,38 @@ const TemperatureListPage = () => {
 
 	const navigate = useNavigate();
 	const [isDialog, setIsDialog] = useState(false);
+	const [isPdfLoading, setIsPdfLoading] = useState(false);
 
 	useEffect(() => {
 		setUploadedData(pagesData);
 	}, [pagesData]);
 
 	async function handleOpenPdf() {
-		console.log("entrei");
-
+		setIsPdfLoading(true);
 		const blob = await pdf(
 			<DocumentPDF data={uploadedData} settings={settings} />
 		).toBlob();
-
+		setIsPdfLoading(false);
 		const blobUrl = URL.createObjectURL(blob);
 
 		window.open(blobUrl, "_blank");
+		setTimeout(() => URL.revokeObjectURL(blobUrl), 6000);
 	}
 
 	const inputTempRef = useRef<HTMLInputElement>(null);
 	return (
 		<div
 			className="
-				w-dvw h-dvh 
+				w-dvw h-dvh relative
 				grid grid-rows-[10%_89%] p-3 sm:p-0 gap-2
 			"
 		>
+			{isPdfLoading && (
+				<div className="absolute flex items-center justify-center z-10 h-screen w-screen bg-white/70">
+					<Spinner className="size-12" />
+				</div>
+			)}
+
 			<div className=" ring-gray-300 ring bg-gray-50  rounded-sm sm:rounded-none">
 				<div className="container flex justify-between items-center mx-auto px-3  h-full text-lg sm:text-3xl">
 					<h2 className="">Monitoramento de temperatura </h2>
