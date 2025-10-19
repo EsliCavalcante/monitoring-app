@@ -23,5 +23,5 @@ export default defineConfig({
 		global: "globalThis",
 		"process.env": {},
 	},
-	base: "/temperature-monitoring-app",
+	base: "/monitoring-app",
 });
