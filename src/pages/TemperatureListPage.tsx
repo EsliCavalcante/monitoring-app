@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 
-import { pdf, PDFDownloadLink } from "@react-pdf/renderer";
+import { pdf } from "@react-pdf/renderer";
 import {
 	Table,
 	TableBody,
@@ -10,7 +10,7 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 
-import { Download, Settings, Upload } from "lucide-react";
+import { Download, Settings, Trash2, Upload } from "lucide-react";
 import { useNavigate } from "react-router";
 import { parseToXLS } from "@/utils/parseToXLS";
 
@@ -37,10 +37,10 @@ import { Spinner } from "@/components/ui/spinner";
 type DataUploaded = {
 	id: number;
 	Container: string;
-	Temperature: number;
+	Temperature: number | null;
 	Position: string;
-	Supply: number;
-	Return: number;
+	Supply: number | null;
+	Return: number | null;
 	Remarks: string;
 };
 
@@ -71,7 +71,9 @@ const TemperatureListPage = () => {
 	const [isPdfLoading, setIsPdfLoading] = useState(false);
 
 	useEffect(() => {
-		setUploadedData(pagesData);
+		if (pagesData.length > 0) {
+			setUploadedData(() => [...pagesData]);
+		}
 	}, [pagesData]);
 
 	async function handleOpenPdf() {
@@ -86,12 +88,37 @@ const TemperatureListPage = () => {
 		setTimeout(() => URL.revokeObjectURL(blobUrl), 6000);
 	}
 
+	async function handleDownloadPdf() {
+		const documentName =
+			settings.mv === " " ? "Relatorio" : settings.mv.trim();
+		setIsPdfLoading(true);
+
+		const blob = await pdf(
+			<DocumentPDF data={uploadedData} settings={settings} />
+		).toBlob();
+
+		setIsPdfLoading(false);
+
+		const blobUrl = URL.createObjectURL(blob);
+		const link = document.createElement("a");
+
+		link.href = blobUrl;
+		link.download = `${documentName}_${new Date().toLocaleDateString()}.pdf`; // nome do arquivo
+		document.body.appendChild(link);
+		link.click();
+
+		// limpeza
+		document.body.removeChild(link);
+		URL.revokeObjectURL(blobUrl);
+	}
+
 	const inputTempRef = useRef<HTMLInputElement>(null);
+
 	return (
 		<div
 			className="
 				w-dvw h-dvh relative
-				grid grid-rows-[10%_89%] p-3 sm:p-0 gap-2
+				grid grid-rows-[10%_89%] p-2 sm:p-0 gap-2
 			"
 		>
 			{isPdfLoading && (
@@ -101,14 +128,14 @@ const TemperatureListPage = () => {
 			)}
 
 			<div className=" ring-gray-300 ring bg-gray-50  rounded-sm sm:rounded-none">
-				<div className="container flex justify-between items-center mx-auto px-3  h-full text-lg sm:text-3xl">
+				<div className="container  dark:bg-zinc-800 flex justify-between items-center mx-auto px-3  h-full text-lg sm:text-3xl">
 					<h2 className="">Monitoramento de temperatura </h2>
 					<Button
 						disabled={uploadedData.length > 0 ? false : true}
 						onClick={handleOpenPdf}
 						className="lg:hidden rounded-xs"
 					>
-						View
+						Visualização
 					</Button>
 					{uploadedData.length > 0 && (
 						<Button
@@ -126,15 +153,16 @@ const TemperatureListPage = () => {
 			<div className="container mx-auto  p-2  ring-offset-1 ring-gray-300 ring bg-gray-50  rounded-xs ">
 				<div className="h-[100%]  grid grid-rows-[30%_60%_10%] lg:grid-rows-[10%_80%_10%] ">
 					<div className="p-2 flex  flex-col items-center lg:flex-row justify-between py-4    border-b-2">
-						<h2 className="text-md w-full lg:w-fit pt-5 lg:p-0 order-3 lg:order-1 md:text-2xl">
-							Tabela de Monitoramento de Temperatura
+						<h2 className="text-md font-medium  w-full lg:w-fit pt-5 lg:p-0 order-3 lg:order-1 md:text-2xl">
+							Tabela de Dados de Temperatura
 						</h2>
-						<div className="order-2">
+						<div className="order-2 w-[100%] sm:w-[60%] md:w-[60%] lg:w-[30%] border-2">
 							<input
 								onChange={(e) =>
 									searchPage(e.currentTarget.value)
 								}
-								className=" focus:outline-none border-1 border-zinc-700 focus:ring-2  focus:ring-blue-400 w-100 p-1.5 uppercase"
+								placeholder="Ex: MNBU1234567"
+								className=" focus:outline-none placeholder:normal-case  border-1 border-zinc-700 focus:ring-2  focus:ring-blue-400 w-[100%] p-1.5 uppercase"
 								type="search"
 							/>
 						</div>
@@ -159,8 +187,8 @@ const TemperatureListPage = () => {
 														item.Temperature
 													),
 													Position: item.Position,
-													Supply: 0,
-													Return: 0,
+													Supply: null,
+													Return: null,
 													id: index + 1,
 												};
 											}
@@ -184,25 +212,12 @@ const TemperatureListPage = () => {
 							</div>
 							<div className="order-1">
 								{uploadedData.length > 0 && (
-									<PDFDownloadLink
-										document={
-											<DocumentPDF
-												data={uploadedData}
-												settings={settings}
-											/>
-										}
+									<Button
+										className="rounded-full size-8 cursor-pointer"
+										onClick={handleDownloadPdf}
 									>
-										{(isLoading) =>
-											isLoading ? (
-												<Button
-													size={"icon"}
-													className="rounded-full size-8 cursor-pointer"
-												>
-													<Download className="size-4" />
-												</Button>
-											) : null
-										}
-									</PDFDownloadLink>
+										<Download />
+									</Button>
 								)}
 							</div>
 							<div className="order-3">
@@ -229,13 +244,16 @@ const TemperatureListPage = () => {
 									>
 										<DialogHeader>
 											<DialogTitle>
-												Are you absolutely sure?
+												Preencha as Informações do
+												Cabeçalho
 											</DialogTitle>
 											<DialogDescription>
-												This action cannot be undone.
-												This will permanently delete
-												your account and remove your
-												data from our servers.
+												Insira as informações
+												necessárias para a identificação
+												e formatação do cabeçalho do seu
+												documento. Esses dados
+												aparecerão no topo de cada
+												página.
 											</DialogDescription>
 										</DialogHeader>
 										<form
@@ -365,6 +383,7 @@ const TemperatureListPage = () => {
 							</div>
 						</div>
 					</div>
+					{/* Table */}
 					<div className="relative overflow-auto w-1/1 ">
 						<div className={`w-1/1`} id="table">
 							<Table className="text-xs sm:text-sm ">
@@ -428,16 +447,33 @@ const TemperatureListPage = () => {
 															editPageData({
 																...page,
 																Temperature:
-																	Number(
-																		value
-																	),
+																	value ===
+																		"" ||
+																	value ===
+																		" "
+																		? null
+																		: Number(
+																				value.split(
+																					"ºC"
+																				)[0]
+																		  ),
 															});
 														}}
 														className="text-center outline-0"
 														type="text"
-														defaultValue={formatTemperature(
-															page.Temperature
-														)}
+														defaultValue={(() => {
+															if (
+																page.Temperature ===
+																null
+															) {
+																return " ";
+															}
+															return formatTemperature(
+																Number(
+																	page.Temperature
+																)
+															);
+														})()}
 													/>
 												</TableCell>
 												<TableCell className="text-center">
@@ -450,11 +486,20 @@ const TemperatureListPage = () => {
 															const value =
 																e.currentTarget
 																	.value;
+
 															editPageData({
 																...page,
-																Supply: Number(
-																	value
-																),
+																Supply:
+																	value ===
+																		"" ||
+																	value ===
+																		" "
+																		? null
+																		: Number(
+																				value.split(
+																					"ºC"
+																				)[0]
+																		  ),
 															});
 														}}
 														className="text-center outline-0"
@@ -462,10 +507,11 @@ const TemperatureListPage = () => {
 														defaultValue={(() => {
 															if (
 																page.Supply ===
-																0
+																null
 															) {
 																return " ";
 															}
+
 															return formatTemperature(
 																Number(
 																	page.Supply
@@ -483,9 +529,17 @@ const TemperatureListPage = () => {
 																	.value;
 															editPageData({
 																...page,
-																Return: Number(
-																	value
-																),
+																Return:
+																	value ===
+																		"" ||
+																	value ===
+																		" "
+																		? null
+																		: Number(
+																				value.split(
+																					"ºC"
+																				)[0]
+																		  ),
 															});
 														}}
 														className="text-center outline-0"
@@ -493,7 +547,7 @@ const TemperatureListPage = () => {
 														defaultValue={(() => {
 															if (
 																page.Return ===
-																0
+																null
 															) {
 																return " ";
 															}
@@ -507,7 +561,7 @@ const TemperatureListPage = () => {
 												</TableCell>
 												<TableCell className="text-center">
 													<input
-														key={page.Container}
+														key={page.Remarks}
 														onBlur={(e) => {
 															const value =
 																e.currentTarget
@@ -532,9 +586,10 @@ const TemperatureListPage = () => {
 															);
 														}}
 														className="cursor-pointer"
-														size={"sm"}
+														size={"icon"}
+														variant={"ghost"}
 													>
-														delete
+														<Trash2 className="stroke-2 stroke-red-700" />
 													</Button>
 												</TableCell>
 											</TableRow>
@@ -571,50 +626,62 @@ const TemperatureListPage = () => {
 							</Table>
 						</div>
 					</div>
-					<div className="p-2 py-4 border-t-2 items-center flex j">
-						<div>
-							<Button
-								className="text-xs rounded-xs"
-								onClick={() => {
-									setPagesData((prev) => {
-										return prev.map((item) => {
-											return {
-												...item,
-												Supply: temperatureGenarete().supply(
-													item.Temperature
-												),
-												Return: temperatureGenarete().return(
-													item.Temperature
-												),
-											};
+					<div className="p-2 py-4 border-t-2 flex items-center">
+						<div className="flex-1 ">
+							<div>
+								<Button
+									className="text-xs rounded-xs"
+									onClick={() => {
+										setPagesData((prev) => {
+											return prev.map((item) => {
+												return {
+													...item,
+													Supply:
+														item.Temperature ===
+														null
+															? null
+															: temperatureGenarete().supply(
+																	item.Temperature
+															  ),
+													Return:
+														item.Temperature ===
+														null
+															? null
+															: temperatureGenarete().return(
+																	item.Temperature
+															  ),
+												};
+											});
 										});
-									});
-								}}
-							>
-								Gerar
-							</Button>
+									}}
+								>
+									Gerar Temp
+								</Button>
+							</div>
 						</div>
-						<div className="flex text-xs items-center ml-[13%] lg:ml-[34%] gap-1 transform-[translateX(40%)] sm:transform-[translateX(50%)] mx-auto">
-							<Button
-								className="rounded-full"
-								size={"sm"}
-								onClick={() => prevPage()}
-							>
-								{"<"}
-							</Button>
-							{currentPage}
-							{" de "}
-							{totalPages}
-							<Button
-								className="rounded-full"
-								size={"sm"}
-								onClick={() => nextPage()}
-							>
-								{">"}
-							</Button>
+						<div className="flex justify-center text-xs flex-3  gap-1   mx-auto">
+							<div>
+								<Button
+									className="rounded-full size-7"
+									size={"sm"}
+									onClick={() => prevPage()}
+								>
+									{"<"}
+								</Button>{" "}
+								{currentPage}
+								{" de "}
+								{totalPages}{" "}
+								<Button
+									className="rounded-full size-7"
+									size={"sm"}
+									onClick={() => nextPage()}
+								>
+									{">"}
+								</Button>
+							</div>
 						</div>
-						<div className="w-15 sm:w-36  text-xs sm:text-sm text-slate-900">
-							Total de registros: {totalItems}
+						<div className="flex-1  text-xs sm:text-sm text-slate-900">
+							<div>Total de registros: {totalItems}</div>
 						</div>
 					</div>
 				</div>

@@ -17,7 +17,7 @@ export const PreviewDocumentPage = () => {
 			<div className="flex items-center ml-2">
 				<Button
 					variant={"ghost"}
-					onClick={() => navigate("/")}
+					onClick={() => navigate("/monitoring-app/")}
 					className="   cursor-pointer"
 				>
 					voltar

@@ -135,7 +135,11 @@ const Table = (props: {
 							odd(rowIndex),
 						]}
 					>
-						<Text>{formatTemperature(row.Temperature) || " "}</Text>
+						<Text>
+							{row.Temperature
+								? formatTemperature(row.Temperature)
+								: " "}
+						</Text>
 					</View>
 					<View
 						style={[
@@ -147,11 +151,9 @@ const Table = (props: {
 						]}
 					>
 						<Text>
-							{(() => {
-								if (row.Supply === 0) return " ";
-
-								return formatTemperature(row.Supply);
-							})() || " "}
+							{row.Supply === null
+								? " "
+								: formatTemperature(row.Supply)}
 						</Text>
 					</View>
 					<View
@@ -164,11 +166,9 @@ const Table = (props: {
 						]}
 					>
 						<Text>
-							{(() => {
-								if (row.Return === 0) return " ";
-
-								return formatTemperature(row.Return);
-							})() || " "}
+							{row.Return === null
+								? " "
+								: formatTemperature(row.Return)}
 						</Text>
 					</View>
 					<View

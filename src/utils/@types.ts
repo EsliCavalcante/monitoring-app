@@ -1,10 +1,10 @@
 export type UploadedData = {
 	id: number;
 	Container: string;
-	Temperature: number;
+	Temperature: number | null;
 	Position: string;
-	Supply: number;
-	Return: number;
+	Supply: number | null;
+	Return: number | null;
 	Remarks: string;
 };
 

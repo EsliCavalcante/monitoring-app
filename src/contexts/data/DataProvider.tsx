@@ -9,9 +9,9 @@ type DataProviderProps = {
 const DataProvider = (props: DataProviderProps) => {
 	const [uploadedData, setUploadedData] = useState<UploadedData[]>([]);
 	const [settings, setSettings] = useState<SettingType>({
-		mv: " ",
-		port: " ",
-		voy: " ",
+		mv: "",
+		port: "",
+		voy: "",
 		status: "plug-in",
 	});
 	return (
