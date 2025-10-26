@@ -6,6 +6,9 @@
 
 @theme inline {
 	--color-custom-dark: #040b14;
+	--color-custom-geadient-blue: #051b36;
+	--color-custom-geadient-blue-dark: #050b12;
+	--color-custom-blue: #0e62bc;
 	--font-base: "Anta", sans-serif;
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);

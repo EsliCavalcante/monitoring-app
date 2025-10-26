@@ -14,7 +14,7 @@ export function useFileReader(props: FileReaderType) {
 		setIsLoading(true);
 		const fileList = event.target.files as FileList;
 		const file = fileList[0];
-
+		if (!file) return;
 		const arrayBuffer = await fileReaderContent(file);
 		props.fnArrayBuffer(arrayBuffer, file);
 		setIsLoading(false);
