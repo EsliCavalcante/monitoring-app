@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
-
-import { pdf } from "@react-pdf/renderer";
+// ThermometerSnowflake
 import {
 	Table,
 	TableBody,
@@ -10,39 +9,22 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 
-import { Download, Settings, Trash2, Upload } from "lucide-react";
-import { useNavigate } from "react-router";
-import { parseToXLS } from "@/utils/parseToXLS";
+import { Trash2 } from "lucide-react";
 
 import useUploadedData from "@/hooks/useUploadedData";
 import { useEffect, useRef, useState } from "react";
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogHeader,
-	DialogTitle,
-	DialogFooter,
-	DialogOverlay,
-	DialogTrigger,
-	DialogClose,
-} from "@/components/ui/dialog";
-import DocumentPDF from "@/features/logSheetPDF/components/Document";
-import UploadButton from "@/features/temperatureMonitoring/components/UploadButton";
+
 import { usePagination } from "@/features/temperatureMonitoring/hooks/usePagination";
 import { formatTemperature } from "@/utils/formatTemperature";
-import { temperatureGenarete } from "@/utils/temperatureGenerate";
+
 import { Spinner } from "@/components/ui/spinner";
 
-type DataUploaded = {
-	id: number;
-	Container: string;
-	Temperature: number | null;
-	Position: string;
-	Supply: number | null;
-	Return: number | null;
-	Remarks: string;
-};
+import { DownloadBtn } from "@/features/monitoringDownload";
+import { PreviewBtn } from "@/features/documentPreview";
+import { HeaderForm } from "@/features/documentHeaderForm";
+import { ArchiveUplodBtn } from "@/features/uploadArchive";
+import type { UploadedData } from "@/utils/@types";
+import TempGeneratorBtn from "@/features/temperatureGenerator/components/TempGeneratorBtn";
 
 const TemperatureListPage = () => {
 	const { uploadedData, setUploadedData, setSettings, settings } =
@@ -61,13 +43,11 @@ const TemperatureListPage = () => {
 		totalPages,
 		pagesData,
 		totalItems,
-	} = usePagination<DataUploaded>({
+	} = usePagination<UploadedData>({
 		itemsPerPage: 16,
 		data: uploadedData,
 	});
 
-	const navigate = useNavigate();
-	const [isDialog, setIsDialog] = useState(false);
 	const [isPdfLoading, setIsPdfLoading] = useState(false);
 
 	useEffect(() => {
@@ -76,49 +56,15 @@ const TemperatureListPage = () => {
 		}
 	}, [pagesData]);
 
-	async function handleOpenPdf() {
-		setIsPdfLoading(true);
-		const blob = await pdf(
-			<DocumentPDF data={uploadedData} settings={settings} />
-		).toBlob();
-		setIsPdfLoading(false);
-		const blobUrl = URL.createObjectURL(blob);
-
-		window.open(blobUrl, "_blank");
-		setTimeout(() => URL.revokeObjectURL(blobUrl), 6000);
-	}
-
-	async function handleDownloadPdf() {
-		const documentName =
-			settings.mv === " " ? "Relatorio" : settings.mv.trim();
-		setIsPdfLoading(true);
-
-		const blob = await pdf(
-			<DocumentPDF data={uploadedData} settings={settings} />
-		).toBlob();
-
-		setIsPdfLoading(false);
-
-		const blobUrl = URL.createObjectURL(blob);
-		const link = document.createElement("a");
-
-		link.href = blobUrl;
-		link.download = `${documentName}_${new Date().toLocaleDateString()}.pdf`; // nome do arquivo
-		document.body.appendChild(link);
-		link.click();
-
-		// limpeza
-		document.body.removeChild(link);
-		URL.revokeObjectURL(blobUrl);
-	}
-
 	const inputTempRef = useRef<HTMLInputElement>(null);
 
 	return (
 		<div
 			className="
+			overflow-y-scroll	
+				bg-custom-dark
 				w-dvw h-dvh relative
-				grid grid-rows-[10%_89%] p-2 sm:p-0 gap-2
+				grid grid-rows-[16%_10%_70%] p-4 sm:p-0 gap-5
 			"
 		>
 			{isPdfLoading && (
@@ -127,315 +73,119 @@ const TemperatureListPage = () => {
 				</div>
 			)}
 
-			<div className=" ring-gray-300 ring bg-gray-50  rounded-sm sm:rounded-none">
-				<div className="container  dark:bg-zinc-800 flex justify-between items-center mx-auto px-3  h-full text-lg sm:text-3xl">
-					<h2 className="">Monitoramento de temperatura </h2>
-					<Button
+			<div className="font-base  bg-gradient-to-l from-custom-geadient-blue to-custom-geadient-blue-dark  rounded-xs sm:rounded-none">
+				<div className="container   flex justify-between items-center mx-auto px-3  h-full text-lg sm:text-3xl">
+					<h2 className="text-[clamp(1rem,5vw,1.5rem)] leading-tight text-white">
+						Monitoramento de temperatura{" "}
+					</h2>
+
+					<PreviewBtn
 						disabled={uploadedData.length > 0 ? false : true}
-						onClick={handleOpenPdf}
-						className="lg:hidden rounded-xs"
-					>
-						Visualização
-					</Button>
-					{uploadedData.length > 0 && (
-						<Button
-							onClick={() =>
-								navigate("/temperature-monitoring-preview")
-							}
-							variant={"outline"}
-							className="rounded-xs hidden xl:block cursor-pointer"
-						>
-							Pré-visualização
-						</Button>
-					)}
+						data={uploadedData}
+						setting={settings}
+						onChangeFile={(isLoading) => {
+							setIsPdfLoading(isLoading);
+						}}
+					/>
 				</div>
 			</div>
-			<div className="container mx-auto  p-2  ring-offset-1 ring-gray-300 ring bg-gray-50  rounded-xs ">
-				<div className="h-[100%]  grid grid-rows-[30%_60%_10%] lg:grid-rows-[10%_80%_10%] ">
-					<div className="p-2 flex  flex-col items-center lg:flex-row justify-between py-4    border-b-2">
-						<h2 className="text-md font-medium  w-full lg:w-fit pt-5 lg:p-0 order-3 lg:order-1 md:text-2xl">
-							Tabela de Dados de Temperatura
-						</h2>
-						<div className="order-2 w-[100%] sm:w-[60%] md:w-[60%] lg:w-[30%] border-2">
+			<div className="font-base    bg-gradient-to-r from-custom-geadient-blue to-custom-geadient-blue-dark  rounded-xs sm:rounded-none">
+				<div className="container flex  justify-evenly items-center mx-auto h-full text-lg ">
+					<HeaderForm
+						onSaveHeader={(data) => {
+							setSettings(data);
+						}}
+					/>
+
+					<TempGeneratorBtn
+						disabled={uploadedData.length > 0 ? false : true}
+						onGeneratorTemp={(data) => {
+							setPagesData(data);
+						}}
+						data={uploadedData}
+					/>
+
+					<DownloadBtn
+						disabled={uploadedData.length > 0 ? false : true}
+						data={uploadedData}
+						settings={settings}
+					/>
+					<ArchiveUplodBtn
+						onChangeFile={(data) => {
+							setUploadedData(data);
+							setPagesData(data);
+						}}
+					/>
+				</div>
+			</div>
+
+			<div className="container font-base bg-gradient-to-t from-custom-geadient-blue to-custom-geadient-blue-dark    mx-auto  p-2   rounded-xs ">
+				<div className="h-[100%]  grid grid-rows-[12%_76%_12%_10%] lg:grid-rows-[10%_80%_10%] ">
+					<div className=" flex   flex-col items-center lg:flex-row justify-between ">
+						<div className="order-2  w-[100%] sm:w-[60%] md:w-[60%] lg:w-[30%] ">
 							<input
 								onChange={(e) =>
 									searchPage(e.currentTarget.value)
 								}
-								placeholder="Ex: MNBU1234567"
-								className=" focus:outline-none placeholder:normal-case  border-1 border-zinc-700 focus:ring-2  focus:ring-blue-400 w-[100%] p-1.5 uppercase"
+								placeholder="Buscar Container (Ex: MNBU1234567)"
+								className="focus:outline-none  text-white text-[10px] px-4 py-3 border border-zinc-500 focus:ring-1 focus:ring-[#BBDCFF]   bg-[#201E32] rounded-xs   placeholder:normal-case placeholder:text-white/60 placeholder:text-[12px]   w-[100%] p-1.5 uppercase"
 								type="search"
 							/>
-						</div>
-						<div className="flex w-full lg:w-fit justify-end   order-1 lg:order-3 gap-3 sm:gap-4 ">
-							<div className="flex order-2 flex-col items-center">
-								<UploadButton
-									onChangeFile={async (arrayBuffer, file) => {
-										if (
-											file.type !==
-											"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-										) {
-											throw new Error("Arquivo Inválido");
-										}
-										const data = await parseToXLS<
-											DataUploaded[]
-										>(arrayBuffer);
-										const value = data.map(
-											(item, index) => {
-												return {
-													...item,
-													Temperature: Number(
-														item.Temperature
-													),
-													Position: item.Position,
-													Supply: null,
-													Return: null,
-													id: index + 1,
-												};
-											}
-										);
-										setPagesData(value);
-
-										setUploadedData(value);
-									}}
-								>
-									{(ref) => (
-										<Button
-											className="rounded-full size-8 cursor-pointer"
-											size={"icon"}
-											variant={"outline"}
-											onClick={() => ref.current?.click()}
-										>
-											<Upload className="size-4" />
-										</Button>
-									)}
-								</UploadButton>
-							</div>
-							<div className="order-1">
-								{uploadedData.length > 0 && (
-									<Button
-										className="rounded-full size-8 cursor-pointer"
-										onClick={handleDownloadPdf}
-									>
-										<Download />
-									</Button>
-								)}
-							</div>
-							<div className="order-3">
-								<Dialog
-									open={isDialog}
-									onOpenChange={(open) => {
-										setIsDialog(!!open);
-									}}
-								>
-									<DialogOverlay />
-									<DialogTrigger asChild>
-										<Button
-											variant={"outline"}
-											className="cursor-pointer size-8 rounded-full"
-										>
-											<Settings className="size-4" />
-										</Button>
-									</DialogTrigger>
-									<DialogContent
-										className="min-w-[40%]"
-										onPointerDownOutside={(event) => {
-											event.preventDefault();
-										}}
-									>
-										<DialogHeader>
-											<DialogTitle>
-												Preencha as Informações do
-												Cabeçalho
-											</DialogTitle>
-											<DialogDescription>
-												Insira as informações
-												necessárias para a identificação
-												e formatação do cabeçalho do seu
-												documento. Esses dados
-												aparecerão no topo de cada
-												página.
-											</DialogDescription>
-										</DialogHeader>
-										<form
-											onSubmit={(e) => {
-												e.preventDefault();
-												const formData = new FormData(
-													e.currentTarget
-												);
-												const port = formData.get(
-													"port"
-												) as string;
-												const mv = formData.get(
-													"mv"
-												) as string;
-												const voy = formData.get(
-													"voy"
-												) as string;
-												const status = formData.get(
-													"status"
-												) as "plug-in" | "plug-out";
-
-												setSettings((prev) => ({
-													...(prev ?? {}),
-													port,
-													mv,
-													voy,
-													status,
-												}));
-												setIsDialog(false);
-											}}
-											id="form"
-											className="flex flex-col gap-4"
-										>
-											<label
-												className="space-y-1.5"
-												htmlFor="port"
-											>
-												<span className="block">
-													PORT
-												</span>
-												<input
-													defaultValue={
-														settings?.port
-													}
-													id="port"
-													name="port"
-													className="p-2.5 w-full border uppercase"
-													type="text"
-													placeholder="SANTOS"
-												/>
-											</label>
-											<label
-												className="space-y-1.5"
-												htmlFor="m/v"
-											>
-												<span className="block">
-													M/V
-												</span>
-												<input
-													defaultValue={settings?.mv}
-													id="m/v"
-													name={"mv"}
-													className="p-2.5 w-full border uppercase"
-													type="text"
-													placeholder="LOG-IN JATOBÁ"
-												/>
-											</label>
-											<label
-												className="space-y-1.5"
-												htmlFor="VOY N"
-											>
-												<span className="block">
-													VOY N°
-												</span>
-												<input
-													defaultValue={settings?.voy}
-													name={"voy"}
-													id="VOY N"
-													className="p-2.5 w-full border uppercase"
-													type="text"
-													placeholder="N125"
-												/>
-											</label>
-											<label
-												className="space-y-1.5"
-												htmlFor="VOY N"
-											>
-												<span className="block">
-													STATUS
-												</span>
-												<select
-													defaultValue={
-														settings?.status
-													}
-													id="status"
-													name="status"
-													className="p-2 w-30 border text-base"
-												>
-													<option value={"plug-in"}>
-														plug-in
-													</option>
-													<option value={"plug-out"}>
-														plug-out
-													</option>
-												</select>
-											</label>
-										</form>
-										<DialogFooter className="">
-											<DialogClose asChild>
-												<Button
-													variant={"outline"}
-													className="px-6 py-6 md:w-40 cursor-pointer w-full"
-												>
-													Close
-												</Button>
-											</DialogClose>
-											<Button
-												form="form"
-												type="submit"
-												className="px-6 py-6 md:w-40 cursor-pointer w-full"
-											>
-												Salvar
-											</Button>
-										</DialogFooter>
-									</DialogContent>
-								</Dialog>
-							</div>
 						</div>
 					</div>
 					{/* Table */}
 					<div className="relative overflow-auto w-1/1 ">
 						<div className={`w-1/1`} id="table">
-							<Table className="text-xs sm:text-sm ">
-								<TableHeader className="sm:h-14">
-									<TableRow className="hover:bg-transparent">
-										<TableHead className="w-10 text-center">
+							<Table className="text-xs text-white  sm:text-sm ">
+								<TableHeader className="">
+									<TableRow className="hover:bg-transparent text-white">
+										<TableHead className="w-10 text-center text-white">
 											Qty{" "}
 										</TableHead>
-										<TableHead className="w-10 space-x-2 text-left">
+										<TableHead className="w-10 space-x-2 text-left text-white">
 											<p className="inline-block">
 												Container
 											</p>
 										</TableHead>
-										<TableHead className="w-31 space-x-2 text-center">
+										<TableHead className="w-31 space-x-2 text-center text-white">
 											<p className="inline-block">
 												Temperature
 											</p>
 										</TableHead>
-										<TableHead className="w-15 space-x-2 text-center">
+										<TableHead className="w-15 space-x-2 text-center text-white">
 											<p className="inline-block">
 												Position
 											</p>
 										</TableHead>
-										<TableHead className="w-15 text-center">
+										<TableHead className="w-15 text-center text-white">
 											Supply
 										</TableHead>
-										<TableHead className="w-15  text-center">
+										<TableHead className="w-15  text-center text-white">
 											Return
 										</TableHead>
-										<TableHead className="w-180   text-center">
+										<TableHead className="w-180   text-center text-white">
 											Remarks
 										</TableHead>
-										<TableHead className="w-18  text-left">
+										<TableHead className="w-18  text-left text-white">
 											Action
 										</TableHead>
 									</TableRow>
 								</TableHeader>
 
-								<TableBody>
+								<TableBody className="">
 									{currentData &&
 										currentData.map((page, index) => (
 											<TableRow
 												key={index}
-												className="sm:h-10 hover:bg-gray-200"
+												className="sm:h-10 text-white hover:bg-custom-blue"
 											>
-												<TableCell className="text-center">
+												<TableCell className="text-center p-0">
 													{page.id}
 												</TableCell>
-												<TableCell className="text-left">
+												<TableCell className="text-left p-0">
 													{page.Container}
 												</TableCell>
-												<TableCell className="text-center">
+												<TableCell className="text-center p-0">
 													<input
 														ref={inputTempRef}
 														key={page.Temperature}
@@ -459,7 +209,7 @@ const TemperatureListPage = () => {
 																		  ),
 															});
 														}}
-														className="text-center outline-0"
+														className="text-center  outline-0"
 														type="text"
 														defaultValue={(() => {
 															if (
@@ -476,10 +226,10 @@ const TemperatureListPage = () => {
 														})()}
 													/>
 												</TableCell>
-												<TableCell className="text-center">
+												<TableCell className="text-center p-0">
 													{page.Position}
 												</TableCell>
-												<TableCell className="text-center">
+												<TableCell className="text-center p-1 md:p-2">
 													<input
 														key={page.Supply}
 														onBlur={(e) => {
@@ -520,7 +270,7 @@ const TemperatureListPage = () => {
 														})()}
 													/>
 												</TableCell>
-												<TableCell className="text-center">
+												<TableCell className="text-center p-1 md:p-2">
 													<input
 														key={page.Return}
 														onBlur={(e) => {
@@ -559,7 +309,7 @@ const TemperatureListPage = () => {
 														})()}
 													/>
 												</TableCell>
-												<TableCell className="text-center">
+												<TableCell className="text-center p-1 md:p-2">
 													<input
 														key={page.Remarks}
 														onBlur={(e) => {
@@ -578,7 +328,7 @@ const TemperatureListPage = () => {
 														}
 													/>
 												</TableCell>
-												<TableCell className="text-center">
+												<TableCell className="text-center p-1 md:p-2">
 													<Button
 														onClick={() => {
 															deletePageData(
@@ -626,43 +376,13 @@ const TemperatureListPage = () => {
 							</Table>
 						</div>
 					</div>
-					<div className="p-2 py-4 border-t-2 flex items-center">
-						<div className="flex-1 ">
-							<div>
+
+					<div className="p-2 py-4  border-t-2 border-white/50 flex  items-center justify-center ">
+						<div className="flex-2">{""}</div>
+						<div className="flex font-base flex-6 justify-center     text-xs ">
+							<div className="text-white">
 								<Button
-									className="text-xs rounded-xs"
-									onClick={() => {
-										setPagesData((prev) => {
-											return prev.map((item) => {
-												return {
-													...item,
-													Supply:
-														item.Temperature ===
-														null
-															? null
-															: temperatureGenarete().supply(
-																	item.Temperature
-															  ),
-													Return:
-														item.Temperature ===
-														null
-															? null
-															: temperatureGenarete().return(
-																	item.Temperature
-															  ),
-												};
-											});
-										});
-									}}
-								>
-									Gerar Temp
-								</Button>
-							</div>
-						</div>
-						<div className="flex justify-center text-xs flex-3  gap-1   mx-auto">
-							<div>
-								<Button
-									className="rounded-full size-7"
+									className="rounded-full m-1 bg-[#BBDCFF]/90 size-7"
 									size={"sm"}
 									onClick={() => prevPage()}
 								>
@@ -672,7 +392,7 @@ const TemperatureListPage = () => {
 								{" de "}
 								{totalPages}{" "}
 								<Button
-									className="rounded-full size-7"
+									className="rounded-full m-1 bg-[#BBDCFF]/90 size-7"
 									size={"sm"}
 									onClick={() => nextPage()}
 								>
@@ -680,11 +400,16 @@ const TemperatureListPage = () => {
 								</Button>
 							</div>
 						</div>
-						<div className="flex-1  text-xs sm:text-sm text-slate-900">
-							<div>Total de registros: {totalItems}</div>
+						<div className="  flex-1  text-white   text-xs sm:text-sm">
+							<div className="text-right ">
+								Registros: {totalItems}
+							</div>
 						</div>
 					</div>
 				</div>
+			</div>
+			<div className="container font-base text-[#BBDCFF] py-6 text-center text-[10px] bg-gradient-to-b from-custom-geadient-blue   to-custom-geadient-blue-dark     mx-auto  p-2   rounded-xs ">
+				Desenvolvido por : Esli Cavalcante
 			</div>
 		</div>
 	);
