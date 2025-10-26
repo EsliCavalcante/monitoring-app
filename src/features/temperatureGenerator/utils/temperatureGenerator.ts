@@ -19,7 +19,7 @@ export function temperatureGenaretor() {
 			}
 
 			if (temp >= 0) {
-				return getRandomDecimal(0.1, 1) + temp;
+				return getRandomDecimal(0.1, 0.6) + temp;
 			}
 
 			return temp + -getRandomDecimal(2, 5);
@@ -39,10 +39,10 @@ export function temperatureGenaretor() {
 			}
 
 			if (temp >= 0) {
-				return getRandomDecimal(2, 4) + temp;
+				return getRandomDecimal(1.9, 2.2) + temp;
 			}
 
-			return moreOrLess(temp) + getRandomDecimal(0.6, 1);
+			return moreOrLess(temp) + getRandomDecimal(0.1, 0.2);
 		},
 	};
 }
@@ -52,7 +52,7 @@ function moreOrLess(value: number) {
 
 	const fn = {
 		1: (number: number) => {
-			return number - 1;
+			return number - 0.3;
 		},
 
 		2: (number: number) => {

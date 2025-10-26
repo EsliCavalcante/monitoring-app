@@ -15,6 +15,13 @@ import { Button } from "@/components/ui/button";
 import { FilePen } from "lucide-react";
 import type { SettingType } from "@/utils/@types";
 import { Btn, Icon, Text } from "@/components/ButtonTextIcon";
+import {
+	InputCustom,
+	InputGroupCustom,
+	InputOptionCustom,
+	InputSelectCustom,
+	LabelCustom,
+} from "@/components/input";
 
 type HeaderFormProps = {
 	onSaveHeader: (data: SettingType) => void;
@@ -87,63 +94,47 @@ const HeaderForm = ({ onSaveHeader }: HeaderFormProps) => {
 						id="form"
 						className="flex flex-col gap-4"
 					>
-						<label
-							className="space-y-1.5 text-[#BBDCFF]/90"
-							htmlFor="port"
-						>
-							<span className="block text-[12px]">PORT</span>
-							<input
-								defaultValue={data?.port}
+						<InputGroupCustom>
+							<LabelCustom>PORT</LabelCustom>
+							<InputCustom
 								id="port"
 								name="port"
-								className="focus:outline-none  text-white text-[12px] px-4 py-2.5 border border-zinc-500 focus:ring-1 focus:ring-[#BBDCFF]   bg-[#201E32] rounded-xs   placeholder:normal-case placeholder:text-white/20 placeholder:text-[12px]   w-[100%] p-1.5 uppercase"
-								type="text"
+								defaultValue={data?.port}
 								placeholder="SANTOS"
 							/>
-						</label>
-						<label
-							className="space-y-1.5 text-[#BBDCFF]/90"
-							htmlFor="m/v"
-						>
-							<span className="block text-[12px]">M/V</span>
-							<input
+						</InputGroupCustom>
+
+						<InputGroupCustom>
+							<LabelCustom>M/V</LabelCustom>
+							<InputCustom
+								id="mv"
+								name="mv"
 								defaultValue={data?.mv}
-								id="m/v"
-								name={"mv"}
-								className="focus:outline-none  text-white text-[12px] px-4 py-2.5 border border-zinc-500 focus:ring-1 focus:ring-[#BBDCFF]   bg-[#201E32] rounded-xs   placeholder:normal-case placeholder:text-white/20 placeholder:text-[12px]   w-[100%] p-1.5 uppercase"
-								type="text"
 								placeholder="LOG-IN JATOBÁ"
 							/>
-						</label>
-						<label
-							className="space-y-1.5 text-[#BBDCFF]/90"
-							htmlFor="VOY N"
-						>
-							<span className="block text-[12px]">VOY N°</span>
-							<input
+						</InputGroupCustom>
+
+						<InputGroupCustom>
+							<LabelCustom>VOY N°</LabelCustom>
+							<InputCustom
+								id="voy"
+								name="voy"
 								defaultValue={data?.voy}
-								name={"voy"}
-								id="VOY N"
-								className="focus:outline-none  text-white text-[12px] px-4 py-2.5 border border-zinc-500 focus:ring-1 focus:ring-[#BBDCFF]   bg-[#201E32] rounded-xs   placeholder:normal-case placeholder:text-white/20 placeholder:text-[12px]   w-[100%] p-1.5 uppercase"
-								type="text"
 								placeholder="N125"
 							/>
-						</label>
-						<label
-							className="space-y-1.5 text-[#BBDCFF]/90"
-							htmlFor="VOY N"
-						>
-							<span className="block text-[12px]">STATUS</span>
-							<select
+						</InputGroupCustom>
+
+						<InputGroupCustom>
+							<LabelCustom>Status</LabelCustom>
+							<InputSelectCustom
 								defaultValue={data?.status}
 								id="status"
 								name="status"
-								className="focus:outline-none text-base  text-white text-[12px] px-4 py-2.5 border border-zinc-500 focus:ring-1 focus:ring-[#BBDCFF]   bg-[#201E32] rounded-xs   placeholder:normal-case placeholder:text-white/20 placeholder:text-[12px]   w-[100%] p-1.5 uppercase"
 							>
-								<option value={"plug-in"}>plug-in</option>
-								<option value={"plug-out"}>plug-out</option>
-							</select>
-						</label>
+								<InputOptionCustom value={"plug-in"} />
+								<InputOptionCustom value={"plug-out"} />
+							</InputSelectCustom>
+						</InputGroupCustom>
 					</form>
 					<DialogFooter className="gap-4 mt-2.5">
 						<DialogClose asChild>
@@ -157,7 +148,7 @@ const HeaderForm = ({ onSaveHeader }: HeaderFormProps) => {
 						<Button
 							form="form"
 							type="submit"
-							className="px-6 py-6 md:w-40 cursor-pointer w-full  bg-custom-blue rounded-xs"
+							className="px-6 py-6 md:w-40 cursor-pointer w-full text-white  bg-custom-blue rounded-xs"
 						>
 							Salvar
 						</Button>

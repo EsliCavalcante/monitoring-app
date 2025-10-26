@@ -25,6 +25,11 @@ import { HeaderForm } from "@/features/documentHeaderForm";
 import { ArchiveUplodBtn } from "@/features/uploadArchive";
 import type { UploadedData } from "@/utils/@types";
 import TempGeneratorBtn from "@/features/temperatureGenerator/components/TempGeneratorBtn";
+import {
+	InputGroupCustom,
+	InputSearchCustom,
+	LabelCustom,
+} from "@/components/input";
 
 const TemperatureListPage = () => {
 	const { uploadedData, setUploadedData, setSettings, settings } =
@@ -120,18 +125,20 @@ const TemperatureListPage = () => {
 			</div>
 
 			<div className="container font-base bg-gradient-to-t from-custom-geadient-blue to-custom-geadient-blue-dark    mx-auto  p-2   rounded-xs ">
-				<div className="h-[100%]  grid grid-rows-[12%_76%_12%_10%] lg:grid-rows-[10%_80%_10%] ">
-					<div className=" flex   flex-col items-center lg:flex-row justify-between ">
-						<div className="order-2  w-[100%] sm:w-[60%] md:w-[60%] lg:w-[30%] ">
-							<input
+				<div className="h-[100%]  grid grid-rows-[12%_76%_12%_10%] lg:grid-rows-[13%_80%_10%] ">
+					<div className=" ">
+						<InputGroupCustom>
+							<LabelCustom>Buscar</LabelCustom>
+							<InputSearchCustom
+								disabled={
+									uploadedData.length > 0 ? false : true
+								}
+								placeholder="Proucurar por Container - Ex : [ MNBU1244321 ]"
 								onChange={(e) =>
 									searchPage(e.currentTarget.value)
 								}
-								placeholder="Buscar Container (Ex: MNBU1234567)"
-								className="focus:outline-none  text-white text-[10px] px-4 py-3 border border-zinc-500 focus:ring-1 focus:ring-[#BBDCFF]   bg-[#201E32] rounded-xs   placeholder:normal-case placeholder:text-white/60 placeholder:text-[12px]   w-[100%] p-1.5 uppercase"
-								type="search"
 							/>
-						</div>
+						</InputGroupCustom>
 					</div>
 					{/* Table */}
 					<div className="relative overflow-auto w-1/1 ">

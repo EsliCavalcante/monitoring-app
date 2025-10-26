@@ -18,7 +18,7 @@ const DownloadBtn = ({
 	settings,
 	...rest
 }: DownloadBtnProps) => {
-	const [isPdfLoading, setIsPdfLoading] = useState(false);
+	const [_, setIsPdfLoading] = useState(false);
 
 	async function handleDownloadPdf() {
 		const documentName =
