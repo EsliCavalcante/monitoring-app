@@ -66,6 +66,7 @@ const Table = (props: {
 	];
 	const colWidths = ["5%", "12%", "10%", "11%", "9%", "9%", "48%"];
 	// console.log(props.blankPageItems);
+	console.log(props.pagesSliceted);
 
 	return (
 		<View style={styles.table}>
@@ -136,7 +137,7 @@ const Table = (props: {
 						]}
 					>
 						<Text>
-							{row.Temperature
+							{row.Temperature !== null
 								? formatTemperature(row.Temperature)
 								: " "}
 						</Text>

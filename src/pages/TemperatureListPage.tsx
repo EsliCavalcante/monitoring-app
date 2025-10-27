@@ -389,7 +389,7 @@ const TemperatureListPage = () => {
 						<div className="flex font-base flex-6 justify-center     text-xs ">
 							<div className="text-white">
 								<Button
-									className="rounded-full m-1 bg-[#BBDCFF]/90 size-7"
+									className="rounded-full m-1 bg-[#BBDCFF]/40 size-7"
 									size={"sm"}
 									onClick={() => prevPage()}
 								>
@@ -399,7 +399,7 @@ const TemperatureListPage = () => {
 								{" de "}
 								{totalPages}{" "}
 								<Button
-									className="rounded-full m-1 bg-[#BBDCFF]/90 size-7"
+									className="rounded-full m-1 bg-[#BBDCFF]/40 size-7"
 									size={"sm"}
 									onClick={() => nextPage()}
 								>
