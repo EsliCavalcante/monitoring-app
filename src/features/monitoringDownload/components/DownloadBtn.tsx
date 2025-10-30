@@ -2,7 +2,7 @@ import { Btn, Text, Icon } from "@/components/ButtonTextIcon";
 import type { Button } from "@/components/ui/button";
 import DocumentPDF from "@/features/logSheetPDF/components/Document";
 import type { SettingType, UploadedData } from "@/utils/@types";
-import { pdf } from "@react-pdf/renderer";
+
 import { Download } from "lucide-react";
 import React, { useState } from "react";
 
@@ -21,6 +21,7 @@ const DownloadBtn = ({
 	const [_, setIsPdfLoading] = useState(false);
 
 	async function handleDownloadPdf() {
+		const { pdf } = await import("@react-pdf/renderer");
 		const documentName =
 			settings.mv === "" ? "Relatorio" : settings.mv.trim();
 

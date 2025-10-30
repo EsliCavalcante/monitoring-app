@@ -20,7 +20,7 @@ import { formatTemperature } from "@/utils/formatTemperature";
 import { Spinner } from "@/components/ui/spinner";
 
 import { DownloadBtn } from "@/features/monitoringDownload";
-import { PreviewBtn } from "@/features/documentPreview";
+
 import { HeaderForm } from "@/features/documentHeaderForm";
 import { ArchiveUplodBtn } from "@/features/uploadArchive";
 import type { UploadedData } from "@/utils/@types";
@@ -31,10 +31,17 @@ import {
 	LabelCustom,
 } from "@/components/input";
 
+import React, { Suspense } from "react";
+
 const TemperatureListPage = () => {
 	const { uploadedData, setUploadedData, setSettings, settings } =
 		useUploadedData();
-
+	const LazyPreviewBtn = React.lazy(
+		() => import("../features/documentPreview/components/PreviewBtn")
+	);
+	const LazyDownloadBtn = React.lazy(
+		() => import("../features/monitoringDownload/components/DownloadBtn")
+	);
 	const {
 		getRemainingPages,
 		editPageData,
@@ -87,14 +94,16 @@ const TemperatureListPage = () => {
 						Monitoramento de temperatura{" "}
 					</h2>
 
-					<PreviewBtn
-						disabled={uploadedData.length > 0 ? false : true}
-						data={uploadedData}
-						setting={settings}
-						onChangeFile={(isLoading) => {
-							setIsPdfLoading(isLoading);
-						}}
-					/>
+					<Suspense fallback={<div>Carregado documento...</div>}>
+						<LazyPreviewBtn
+							disabled={uploadedData.length > 0 ? false : true}
+							data={uploadedData}
+							setting={settings}
+							onChangeFile={(isLoading) => {
+								setIsPdfLoading(isLoading);
+							}}
+						/>
+					</Suspense>
 				</div>
 			</div>
 			<div className="font-base    bg-gradient-to-r from-custom-geadient-blue to-custom-geadient-blue-dark  rounded-xs sm:rounded-none">
@@ -113,11 +122,15 @@ const TemperatureListPage = () => {
 						data={uploadedData}
 					/>
 
-					<DownloadBtn
-						disabled={uploadedData.length > 0 ? false : true}
-						data={uploadedData}
-						settings={settings}
-					/>
+					<Suspense
+						fallback={<div>Carregando arquivo para download</div>}
+					>
+						<LazyDownloadBtn
+							disabled={uploadedData.length > 0 ? false : true}
+							data={uploadedData}
+							settings={settings}
+						/>
+					</Suspense>
 					<ArchiveUplodBtn
 						onChangeFile={(data) => {
 							setUploadedData(data);
