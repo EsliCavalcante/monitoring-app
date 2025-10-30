@@ -40,26 +40,29 @@ const TemperatureListPage = () => {
 		editPageData,
 		nextPage,
 		prevPage,
-		setPagesData,
+		setOriginalData,
 		deletePageData,
-		searchPage,
+		setSearchByContainer,
+		originalData,
+		searchByContainer,
 		currentData,
 		currentPage,
 		totalPages,
-		pagesData,
+
 		totalItems,
+		searchIsEnabled,
 	} = usePagination<UploadedData>({
 		itemsPerPage: 16,
 		data: uploadedData,
 	});
-
+	const { pagesSliceted, numbersSliceted } = currentData;
 	const [isPdfLoading, setIsPdfLoading] = useState(false);
 
 	useEffect(() => {
-		if (pagesData.length > 0) {
-			setUploadedData(() => [...pagesData]);
+		if (originalData.length > 0) {
+			setUploadedData(() => [...originalData]);
 		}
-	}, [pagesData]);
+	}, [originalData]);
 
 	const inputTempRef = useRef<HTMLInputElement>(null);
 
@@ -105,7 +108,7 @@ const TemperatureListPage = () => {
 					<TempGeneratorBtn
 						disabled={uploadedData.length > 0 ? false : true}
 						onGeneratorTemp={(data) => {
-							setPagesData(data);
+							setOriginalData(data);
 						}}
 						data={uploadedData}
 					/>
@@ -118,7 +121,7 @@ const TemperatureListPage = () => {
 					<ArchiveUplodBtn
 						onChangeFile={(data) => {
 							setUploadedData(data);
-							setPagesData(data);
+							setOriginalData(data);
 						}}
 					/>
 				</div>
@@ -133,260 +136,302 @@ const TemperatureListPage = () => {
 								disabled={
 									uploadedData.length > 0 ? false : true
 								}
-								placeholder="Proucurar por Container - Ex : [ MNBU1244321 ]"
+								placeholder="Proucurar Container - Ex : [ MNBU1244321 ]"
 								onChange={(e) =>
-									searchPage(e.currentTarget.value)
+									setSearchByContainer(e.currentTarget.value)
 								}
+								value={searchByContainer}
 							/>
 						</InputGroupCustom>
 					</div>
 					{/* Table */}
 					<div className="relative overflow-auto w-1/1 ">
-						<div className={`w-1/1`} id="table">
-							<Table className="text-xs text-white  sm:text-sm ">
-								<TableHeader className="">
-									<TableRow className="hover:bg-transparent text-white">
-										<TableHead className="w-10 text-center text-white">
-											Qty{" "}
-										</TableHead>
-										<TableHead className="w-10 space-x-2 text-left text-white">
-											<p className="inline-block">
-												Container
-											</p>
-										</TableHead>
-										<TableHead className="w-31 space-x-2 text-center text-white">
-											<p className="inline-block">
-												Temperature
-											</p>
-										</TableHead>
-										<TableHead className="w-15 space-x-2 text-center text-white">
-											<p className="inline-block">
-												Position
-											</p>
-										</TableHead>
-										<TableHead className="w-15 text-center text-white">
-											Supply
-										</TableHead>
-										<TableHead className="w-15  text-center text-white">
-											Return
-										</TableHead>
-										<TableHead className="w-180   text-center text-white">
-											Remarks
-										</TableHead>
-										<TableHead className="w-18  text-left text-white">
-											Action
-										</TableHead>
-									</TableRow>
-								</TableHeader>
+						<div className={`w-full h-1/1  `} id="table">
+							{pagesSliceted.length > 0 && (
+								<Table className="text-xs text-white  sm:text-sm ">
+									<TableHeader className="">
+										<TableRow className="hover:bg-transparent text-white">
+											<TableHead className="w-10 text-center text-white">
+												Qty{" "}
+											</TableHead>
+											<TableHead className="w-10 space-x-2 text-left text-white">
+												<p className="inline-block">
+													Container
+												</p>
+											</TableHead>
+											<TableHead className="w-31 space-x-2 text-center text-white">
+												<p className="inline-block">
+													Temperature
+												</p>
+											</TableHead>
+											<TableHead className="w-15 space-x-2 text-center text-white">
+												<p className="inline-block">
+													Position
+												</p>
+											</TableHead>
+											<TableHead className="w-15 text-center text-white">
+												Supply
+											</TableHead>
+											<TableHead className="w-15  text-center text-white">
+												Return
+											</TableHead>
+											<TableHead className="w-180   text-center text-white">
+												Remarks
+											</TableHead>
+											<TableHead className="w-18  text-left text-white">
+												Action
+											</TableHead>
+										</TableRow>
+									</TableHeader>
 
-								<TableBody className="">
-									{currentData &&
-										currentData.map((page, index) => (
+									<TableBody className="">
+										{currentData &&
+											pagesSliceted.map((page, index) => (
+												<TableRow
+													key={page.id}
+													className="sm:h-10 text-white hover:bg-custom-blue"
+												>
+													<TableCell className="text-center p-0">
+														{numbersSliceted[index]}
+													</TableCell>
+													<TableCell className="text-left p-0">
+														<input
+															ref={inputTempRef}
+															key={page.Container}
+															onBlur={(e) => {
+																const value =
+																	e
+																		.currentTarget
+																		.value;
+
+																editPageData({
+																	...page,
+																	Container:
+																		value,
+																});
+															}}
+															className="text-center uppercase  outline-0"
+															type="text"
+															defaultValue={
+																page.Container
+															}
+														/>
+													</TableCell>
+													<TableCell className="text-center p-0">
+														<input
+															ref={inputTempRef}
+															key={
+																page.Temperature
+															}
+															onBlur={(e) => {
+																const value =
+																	e
+																		.currentTarget
+																		.value;
+
+																editPageData({
+																	...page,
+																	Temperature:
+																		value ===
+																			"" ||
+																		value ===
+																			" "
+																			? null
+																			: Number(
+																					value.split(
+																						"ºC"
+																					)[0]
+																			  ),
+																});
+															}}
+															className="text-center  outline-0"
+															type="text"
+															defaultValue={(() => {
+																if (
+																	page.Temperature ===
+																	null
+																) {
+																	return " ";
+																}
+																return formatTemperature(
+																	Number(
+																		page.Temperature
+																	)
+																);
+															})()}
+														/>
+													</TableCell>
+													<TableCell className="text-center p-0">
+														{page.Position}
+													</TableCell>
+													<TableCell className="text-center p-1 md:p-2">
+														<input
+															key={page.Supply}
+															onBlur={(e) => {
+																const value =
+																	e
+																		.currentTarget
+																		.value;
+
+																editPageData({
+																	...page,
+																	Supply:
+																		value ===
+																			"" ||
+																		value ===
+																			" "
+																			? null
+																			: Number(
+																					value.split(
+																						"ºC"
+																					)[0]
+																			  ),
+																});
+															}}
+															className="text-center outline-0"
+															type="text"
+															defaultValue={(() => {
+																if (
+																	page.Supply ===
+																	null
+																) {
+																	return " ";
+																}
+
+																return formatTemperature(
+																	Number(
+																		page.Supply
+																	)
+																);
+															})()}
+														/>
+													</TableCell>
+													<TableCell className="text-center p-1 md:p-2">
+														<input
+															key={page.Return}
+															onBlur={(e) => {
+																const value =
+																	e
+																		.currentTarget
+																		.value;
+																editPageData({
+																	...page,
+																	Return:
+																		value ===
+																			"" ||
+																		value ===
+																			" "
+																			? null
+																			: Number(
+																					value.split(
+																						"ºC"
+																					)[0]
+																			  ),
+																});
+															}}
+															className="text-center outline-0"
+															type="text"
+															defaultValue={(() => {
+																if (
+																	page.Return ===
+																	null
+																) {
+																	return " ";
+																}
+																return formatTemperature(
+																	Number(
+																		page.Return
+																	)
+																);
+															})()}
+														/>
+													</TableCell>
+													<TableCell className="text-center p-1 md:p-2">
+														<input
+															key={page.Remarks}
+															onBlur={(e) => {
+																const value =
+																	e
+																		.currentTarget
+																		.value;
+																editPageData({
+																	...page,
+																	Remarks:
+																		value,
+																});
+															}}
+															className="text-center outline-0"
+															type="text"
+															defaultValue={
+																page.Remarks
+															}
+														/>
+													</TableCell>
+													<TableCell className="text-center p-1 md:p-2">
+														<Button
+															onClick={() => {
+																deletePageData(
+																	page
+																);
+															}}
+															className="cursor-pointer"
+															size={"icon"}
+															variant={"ghost"}
+														>
+															<Trash2 className="stroke-2 stroke-red-700" />
+														</Button>
+													</TableCell>
+												</TableRow>
+											))}
+
+										{getRemainingPages()?.map((item, i) => (
 											<TableRow
-												key={index}
-												className="sm:h-10 text-white hover:bg-custom-blue"
+												key={i}
+												className="  hover:bg-custom-blue "
 											>
-												<TableCell className="text-center p-0">
-													{page.id}
+												<TableCell className="text-center h-11 ">
+													{item}
 												</TableCell>
-												<TableCell className="text-left p-0">
-													{page.Container}
+												<TableCell className="text-left">
+													{""}
 												</TableCell>
-												<TableCell className="text-center p-0">
-													<input
-														ref={inputTempRef}
-														key={page.Temperature}
-														onBlur={(e) => {
-															const value =
-																e.currentTarget
-																	.value;
-
-															editPageData({
-																...page,
-																Temperature:
-																	value ===
-																		"" ||
-																	value ===
-																		" "
-																		? null
-																		: Number(
-																				value.split(
-																					"ºC"
-																				)[0]
-																		  ),
-															});
-														}}
-														className="text-center  outline-0"
-														type="text"
-														defaultValue={(() => {
-															if (
-																page.Temperature ===
-																null
-															) {
-																return " ";
-															}
-															return formatTemperature(
-																Number(
-																	page.Temperature
-																)
-															);
-														})()}
-													/>
+												<TableCell className="text-center">
+													{""}
 												</TableCell>
-												<TableCell className="text-center p-0">
-													{page.Position}
+												<TableCell className="text-center">
+													{""}
 												</TableCell>
-												<TableCell className="text-center p-1 md:p-2">
-													<input
-														key={page.Supply}
-														onBlur={(e) => {
-															const value =
-																e.currentTarget
-																	.value;
-
-															editPageData({
-																...page,
-																Supply:
-																	value ===
-																		"" ||
-																	value ===
-																		" "
-																		? null
-																		: Number(
-																				value.split(
-																					"ºC"
-																				)[0]
-																		  ),
-															});
-														}}
-														className="text-center outline-0"
-														type="text"
-														defaultValue={(() => {
-															if (
-																page.Supply ===
-																null
-															) {
-																return " ";
-															}
-
-															return formatTemperature(
-																Number(
-																	page.Supply
-																)
-															);
-														})()}
-													/>
+												<TableCell className="text-center">
+													{""}
 												</TableCell>
-												<TableCell className="text-center p-1 md:p-2">
-													<input
-														key={page.Return}
-														onBlur={(e) => {
-															const value =
-																e.currentTarget
-																	.value;
-															editPageData({
-																...page,
-																Return:
-																	value ===
-																		"" ||
-																	value ===
-																		" "
-																		? null
-																		: Number(
-																				value.split(
-																					"ºC"
-																				)[0]
-																		  ),
-															});
-														}}
-														className="text-center outline-0"
-														type="text"
-														defaultValue={(() => {
-															if (
-																page.Return ===
-																null
-															) {
-																return " ";
-															}
-															return formatTemperature(
-																Number(
-																	page.Return
-																)
-															);
-														})()}
-													/>
+												<TableCell className="text-center">
+													{""}
 												</TableCell>
-												<TableCell className="text-center p-1 md:p-2">
-													<input
-														key={page.Remarks}
-														onBlur={(e) => {
-															const value =
-																e.currentTarget
-																	.value;
-															editPageData({
-																...page,
-																Remarks: value,
-															});
-														}}
-														className="text-center outline-0"
-														type="text"
-														defaultValue={
-															page.Remarks
-														}
-													/>
+												<TableCell className="text-center">
+													{""}
 												</TableCell>
-												<TableCell className="text-center p-1 md:p-2">
-													<Button
-														onClick={() => {
-															deletePageData(
-																page
-															);
-														}}
-														className="cursor-pointer"
-														size={"icon"}
-														variant={"ghost"}
-													>
-														<Trash2 className="stroke-2 stroke-red-700" />
-													</Button>
+												<TableCell className="text-center">
+													{""}
 												</TableCell>
 											</TableRow>
 										))}
-									{getRemainingPages()?.map((item, i) => (
-										<TableRow
-											key={i}
-											className="sm:h-10 hover:bg-gray-200"
-										>
-											<TableCell className="text-center">
-												{item.id}
-											</TableCell>
-											<TableCell className="text-left">
-												{""}
-											</TableCell>
-											<TableCell className="text-center">
-												{""}
-											</TableCell>
-											<TableCell className="text-center">
-												{""}
-											</TableCell>
-											<TableCell className="text-center">
-												{""}
-											</TableCell>
-											<TableCell className="text-center">
-												{""}
-											</TableCell>
-											<TableCell className="text-center">
-												{""}
-											</TableCell>
-										</TableRow>
-									))}
-								</TableBody>
-							</Table>
+									</TableBody>
+								</Table>
+							)}
+
+							{searchIsEnabled === true &&
+								pagesSliceted.length === 0 && (
+									<div className="text-white h-1/1  flex justify-center items-center">
+										<p className="text-xs text-zinc-400 font-extralight">
+											Container não encontrado{" "}
+										</p>
+									</div>
+								)}
 						</div>
 					</div>
 
 					<div className="p-2 py-4  border-t-2 border-white/50 flex  items-center justify-center ">
-						<div className="flex-2">{""}</div>
-						<div className="flex font-base flex-6 justify-center     text-xs ">
+						<div className="flex relative font-base flex-6 justify-center w-full  items-center   text-xs ">
 							<div className="text-white">
 								<Button
 									className="rounded-full m-1 bg-[#BBDCFF]/40 size-7"
@@ -406,10 +451,11 @@ const TemperatureListPage = () => {
 									{">"}
 								</Button>
 							</div>
-						</div>
-						<div className="  flex-1  text-white   text-xs sm:text-sm">
-							<div className="text-right ">
-								Registros: {totalItems}
+
+							<div className="  flex-1 absolute right-0  w-20 text-white   text-xs sm:text-sm">
+								<div className="text-right ">
+									Registros: {totalItems}
+								</div>
 							</div>
 						</div>
 					</div>

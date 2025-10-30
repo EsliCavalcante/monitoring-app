@@ -5,7 +5,7 @@ type InputSearchCustomProps = React.ComponentProps<"input">;
 
 const InputSearchCustom = ({ ...rest }: InputSearchCustomProps) => {
 	const classInputCustom = `
-		border-gray-500 border p-[clamp(0.3rem,2vw,0.2rem)] pl-9
+		border-gray-500 border p-[clamp(0.3rem,2vw,0.2rem)] pl-11
 		min-w-full rounded-xs bg-[#333241] 
 		text-[clamp(0.8rem,1.9vw,1.1rem)]
 		placeholder:text-zinc-500/95

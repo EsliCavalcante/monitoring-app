@@ -65,8 +65,8 @@ const Table = (props: {
 		"Remarks",
 	];
 	const colWidths = ["5%", "12%", "10%", "11%", "9%", "9%", "48%"];
-	// console.log(props.blankPageItems);
-	console.log(props.pagesSliceted);
+
+	const totalPagesRemaining = 30 - (props.pagesSliceted.length % 30 || 30);
 
 	return (
 		<View style={styles.table}>
@@ -188,7 +188,7 @@ const Table = (props: {
 			))}
 
 			{Array.from({
-				length: 30 - (props.pagesSliceted.length % 30 || 30),
+				length: totalPagesRemaining,
 			}).map((_, rowIndex) => {
 				return (
 					<View key={rowIndex} style={styles.row}>
@@ -198,7 +198,9 @@ const Table = (props: {
 								{
 									width: colWidths[0],
 								},
-								even(rowIndex),
+								totalPagesRemaining % 2 == 0
+									? odd(rowIndex)
+									: even(rowIndex),
 							]}
 						>
 							<Text>{props.blankPageItems[rowIndex]}</Text>
@@ -209,7 +211,9 @@ const Table = (props: {
 								{
 									width: colWidths[1],
 								},
-								even(rowIndex),
+								totalPagesRemaining % 2 == 0
+									? odd(rowIndex)
+									: even(rowIndex),
 							]}
 						>
 							<Text>{""} </Text>
@@ -220,7 +224,9 @@ const Table = (props: {
 								{
 									width: colWidths[2],
 								},
-								even(rowIndex),
+								totalPagesRemaining % 2 == 0
+									? odd(rowIndex)
+									: even(rowIndex),
 							]}
 						>
 							<Text>{""} </Text>
@@ -231,7 +237,9 @@ const Table = (props: {
 								{
 									width: colWidths[3],
 								},
-								even(rowIndex),
+								totalPagesRemaining % 2 == 0
+									? odd(rowIndex)
+									: even(rowIndex),
 							]}
 						>
 							<Text>{""} </Text>
@@ -242,7 +250,9 @@ const Table = (props: {
 								{
 									width: colWidths[4],
 								},
-								even(rowIndex),
+								totalPagesRemaining % 2 == 0
+									? odd(rowIndex)
+									: even(rowIndex),
 							]}
 						>
 							<Text>{""} </Text>
@@ -253,7 +263,9 @@ const Table = (props: {
 								{
 									width: colWidths[5],
 								},
-								even(rowIndex),
+								totalPagesRemaining % 2 == 0
+									? odd(rowIndex)
+									: even(rowIndex),
 							]}
 						>
 							<Text>{""} </Text>
@@ -265,7 +277,9 @@ const Table = (props: {
 									width: colWidths[6],
 									borderRightWidth: 0,
 								},
-								even(rowIndex),
+								totalPagesRemaining % 2 == 0
+									? odd(rowIndex)
+									: even(rowIndex),
 							]}
 						>
 							<Text>{""} </Text>

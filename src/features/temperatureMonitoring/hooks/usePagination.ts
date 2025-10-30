@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type UsePaginationProps<T> = {
 	data: T[];
@@ -17,38 +17,55 @@ export function usePagination<T>({
 	itemsPerPage = 10,
 	onPageChange,
 }: UsePaginationProps<T>) {
-	const [pagesData, setPagesData] = useState<DataPage<T>[]>([
-		...(data as any),
-	]);
-	const [searchedMonitoringData, setSearchedMonitoringData] = useState<
-		DataPage<T>[]
-	>([]);
+	const [originalData, setOriginalData] = useState<DataPage<T>[]>(() => {
+		return Array.from({ length: data.length }, (_, i) => {
+			return { ...data[i], id: i + 1 };
+		}) as DataPage<T>[];
+	});
+
+	const [researchData, setResearchData] = useState<DataPage<T>[]>([]);
+	const [dataPage, setDataPage] = useState<DataPage<T>[]>([]);
 	const [searchIsEnabled, setSearchIsEnabled] = useState(false);
+	const [searchByContainer, setSearchByContainer] = useState<string>("");
 
-	// const items = useMemo(() => {
-	// 	return Array.from({ length: pagesData.length }, (_, i) => i + 1);
-	// }, [pagesData]);
+	useEffect(() => {
+		if (searchByContainer !== "") {
+			setResearchData((_) => {
+				setSearchIsEnabled(true);
 
-	const getDataPage = useCallback(() => {
+				const searcheted = originalData.filter((predicate) => {
+					const value = predicate as any;
+					return value.Container.toLowerCase().includes(
+						searchByContainer?.toLowerCase()
+					);
+				});
+
+				if (searcheted.length === 0) return searcheted;
+
+				return searcheted;
+			});
+			return;
+		}
+
+		setSearchIsEnabled(false);
+		setResearchData([]);
+	}, [searchByContainer, originalData, setResearchData]);
+
+	useEffect(() => {
 		if (searchIsEnabled) {
-			return searchedMonitoringData;
+			setDataPage(researchData);
+			return;
 		}
 
-		if (pagesData.length) {
-			if ("id" in pagesData[0]) {
-				return pagesData;
-			}
+		setDataPage(originalData);
+	}, [searchIsEnabled, originalData, researchData]);
 
-			const pages = Array.from({ length: pagesData.length }, (_, i) => {
-				return { ...pagesData[i], id: i + 1 };
-			}) as DataPage<T>[];
+	const pagesNumbers = Array.from(
+		{ length: dataPage.length },
+		(_, i) => i + 1
+	);
 
-			return pages;
-		}
-		return [];
-	}, [pagesData, searchedMonitoringData, searchIsEnabled]);
-
-	const totalItems = getDataPage().length;
+	const totalItems = dataPage.length;
 	const totalPages = Math.max(Math.ceil(totalItems / itemsPerPage), 1);
 	const [currentPage, setCurrentPage] = useState(initialPage);
 
@@ -56,75 +73,29 @@ export function usePagination<T>({
 		(data: T) => {
 			const editData = data as any;
 
-			setPagesData((prev) => {
+			setOriginalData((prev) => {
 				const edit = prev as any;
 
-				const d = edit.filter(
-					(item: any) => item.Container !== editData.Container
-				);
-
-				return d.map((item: any, index: any) => {
-					return {
-						...item,
-						id: index + 1,
-					};
-				});
-			});
-
-			setSearchedMonitoringData((prev) => {
-				const edit = prev as any;
-
+				if (researchData.length - 1 === 0) {
+					setSearchByContainer("");
+				}
 				return edit.filter(
 					(item: any) => item.Container !== editData.Container
 				);
 			});
 		},
-		[setPagesData, setSearchedMonitoringData]
-	);
-
-	const searchPage = useCallback(
-		(item: string) => {
-			setSearchIsEnabled(true);
-
-			if (item === "") {
-				setSearchIsEnabled(false);
-
-				setSearchedMonitoringData([]);
-				return;
-			}
-
-			setSearchedMonitoringData(() => {
-				const searcheted = pagesData.filter((predicate) => {
-					const value = predicate as any;
-					const test = value.Container.toLowerCase().includes(
-						item.toLowerCase()
-					);
-
-					return test;
-				});
-
-				if (searcheted.length === 0) return searcheted;
-
-				return searcheted.map((item, index) => {
-					return {
-						...item,
-						id: index + 1,
-					};
-				});
-			});
-		},
-		[pagesData, setSearchedMonitoringData, setSearchIsEnabled]
+		[setDataPage, researchData]
 	);
 
 	const editPageData = useCallback(
 		(data: T) => {
 			const editData = data as any;
 
-			setPagesData((prev) => {
+			setOriginalData((prev) => {
 				const edit = prev as any;
 
-				const value = edit.map((item: any) => {
-					if (item.Container === editData.Container) {
+				return edit.map((item: any) => {
+					if (item.id === editData.id) {
 						return {
 							...item,
 							...editData,
@@ -132,46 +103,27 @@ export function usePagination<T>({
 					}
 					return item;
 				});
-
-				return value.map((item: any, index: any) => {
-					return {
-						...item,
-						id: index + 1,
-					};
-				});
-			});
-
-			setSearchedMonitoringData((prev) => {
-				const edit = prev as any;
-
-				const value = edit.map((item: any) => {
-					if (item.Container === editData.Container) {
-						return {
-							...item,
-							...editData,
-						};
-					}
-
-					return item;
-				});
-
-				return value;
 			});
 		},
-		[setPagesData, searchIsEnabled, setSearchedMonitoringData]
+		[setDataPage]
 	);
 
 	const getPage = useCallback(
 		(page: number) => {
 			const startIndex = (page - 1) * itemsPerPage;
-			const d = getDataPage().slice(
+			const pagesSliceted = dataPage.slice(
 				startIndex,
 				startIndex + itemsPerPage
 			);
 
-			return d;
+			const numbersSliceted = pagesNumbers.slice(
+				startIndex,
+				startIndex + itemsPerPage
+			);
+
+			return { pagesSliceted, numbersSliceted };
 		},
-		[pagesData, itemsPerPage, searchedMonitoringData]
+		[itemsPerPage, dataPage]
 	);
 
 	const setPage = useCallback(
@@ -180,27 +132,24 @@ export function usePagination<T>({
 			const currentData = getPage(newPage);
 
 			setCurrentPage(newPage);
-			if (onPageChange) onPageChange(currentData);
+			if (onPageChange) onPageChange(currentData.pagesSliceted);
 		},
 		[totalPages, onPageChange, getPage]
 	);
 
 	const getRemainingPages = useCallback(() => {
-		const page = getPage(currentPage);
+		const { numbersSliceted } = getPage(currentPage);
 
-		if (page.length) {
-			if (page.length === itemsPerPage) return [];
+		if (numbersSliceted.length) {
+			if (numbersSliceted.length === itemsPerPage) return [];
 			const data = Array.from(
-				{ length: Math.abs(page.length - itemsPerPage) },
-				(_, i) => {
-					return {
-						id: page.slice(-1)[0].id + i + 1,
-					} as DataPage<T>;
-				}
+				{ length: Math.abs(numbersSliceted.length - itemsPerPage) },
+				(_, i) => numbersSliceted.slice(-1)[0] + i + 1
 			);
+
 			return data;
 		}
-	}, [currentPage, pagesData, searchedMonitoringData]);
+	}, [currentPage, getPage]);
 
 	const nextPage = useCallback(
 		() => setPage(currentPage + 1),
@@ -227,14 +176,15 @@ export function usePagination<T>({
 		currentData,
 		hasFirstPage,
 		hasLastPage,
-		pagesData,
 		totalItems,
-		searchedMonitoringData,
 		searchIsEnabled,
-		searchPage,
+		pagesNumbers,
+		searchByContainer,
+		originalData,
+		setOriginalData,
+		setSearchByContainer,
 		deletePageData,
 		editPageData,
-		setPagesData,
 		getPage,
 		getRemainingPages,
 		nextPage,

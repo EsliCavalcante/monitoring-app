@@ -2,7 +2,7 @@ import { BtnPrimary } from "@/components/ButtonPrimary";
 import type { Button } from "@/components/ui/button";
 import DocumentPDF from "@/features/logSheetPDF/components/Document";
 import type { SettingType, UploadedData } from "@/utils/@types";
-import { pdf } from "@react-pdf/renderer";
+
 import React from "react";
 
 type PreviewBtnProps = {
@@ -18,6 +18,7 @@ const PreviewBtn = ({
 	...rest
 }: PreviewBtnProps) => {
 	async function handleOpenPdf() {
+		const { pdf } = await import("@react-pdf/renderer");
 		if (onChangeFile) {
 			onChangeFile(true);
 		}
