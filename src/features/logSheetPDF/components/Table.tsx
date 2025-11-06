@@ -113,7 +113,7 @@ const Table = (props: {
 						]}
 					>
 						<Text style={styles["text-uppercase"]}>
-							{row.Container || " "}
+							{row.container || " "}
 						</Text>
 					</View>
 					<View
@@ -125,7 +125,7 @@ const Table = (props: {
 							odd(rowIndex),
 						]}
 					>
-						<Text>{row.Position || " "}</Text>
+						<Text>{row.position || " "}</Text>
 					</View>
 					<View
 						style={[
@@ -137,8 +137,8 @@ const Table = (props: {
 						]}
 					>
 						<Text>
-							{row.Temperature !== null
-								? formatTemperature(row.Temperature)
+							{row.temperature !== null
+								? formatTemperature(row.temperature)
 								: " "}
 						</Text>
 					</View>
@@ -152,9 +152,9 @@ const Table = (props: {
 						]}
 					>
 						<Text>
-							{row.Supply === null
+							{row.supply === null
 								? " "
-								: formatTemperature(row.Supply)}
+								: formatTemperature(row.supply)}
 						</Text>
 					</View>
 					<View
@@ -167,9 +167,9 @@ const Table = (props: {
 						]}
 					>
 						<Text>
-							{row.Return === null
+							{row.return === null
 								? " "
-								: formatTemperature(row.Return)}
+								: formatTemperature(row.return)}
 						</Text>
 					</View>
 					<View
@@ -182,7 +182,7 @@ const Table = (props: {
 							odd(rowIndex),
 						]}
 					>
-						<Text>{row.Remarks || " "}</Text>
+						<Text>{row.remarks || " "}</Text>
 					</View>
 				</View>
 			))}

@@ -1,25 +1,11 @@
 export function formatTemperature(value: number): string {
-	if (value.toString().split("°").length > 1)
-		return value.toString().split("°")[0].trim() + "ºC";
+	// Se não for número válido, retornar string vazia para indicar ausência
+	if (typeof value !== "number" || Number.isNaN(value)) return "";
 
-	const parseNumber = Number(value);
+	// Formata com 1 casa decimal e adiciona o sufixo °C
 
-	if (parseNumber >= 0.0 && parseNumber <= 0.9) {
-		if (parseNumber === 0.0) return `+${parseNumber.toPrecision(2)}ºC`;
-		return `+${parseNumber.toPrecision(1)}ºC`;
+	if (value >= 0) {
+		return `+${value.toFixed(1)}°C`;
 	}
-
-	if (parseNumber > 0) {
-		return parseNumber > 0 && parseNumber < 10
-			? `+${parseNumber.toPrecision(2)}ºC`
-			: `+${parseNumber.toPrecision(3).padEnd(3, "0")}ºC`;
-	}
-
-	if (parseNumber < -0.0 && parseNumber >= -0.9) {
-		return `${parseNumber.toPrecision(1)}ºC`;
-	}
-
-	return parseNumber < 0 && parseNumber > -10
-		? `${parseNumber.toPrecision(2)}ºC`
-		: `${parseNumber.toPrecision(3).padEnd(3, "0")}ºC`;
+	return `${value.toFixed(1)}°C`;
 }

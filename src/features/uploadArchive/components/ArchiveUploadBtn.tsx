@@ -1,7 +1,7 @@
 import { Btn, Icon, Text } from "@/components/ButtonTextIcon";
 import { useFileReader } from "@/features/temperatureMonitoring/hooks/useFileReader";
 import type { UploadedData } from "@/utils/@types";
-import { parseToXLS } from "@/utils/parseToXLS";
+import { useParseToXLS } from "@/utils/useParseToXLS";
 import { Upload } from "lucide-react";
 import { useRef } from "react";
 
@@ -11,26 +11,27 @@ type ArchiveUploadBtn = {
 
 const ArchiveUploadBtn = (props: ArchiveUploadBtn) => {
 	const inputRef = useRef<HTMLInputElement | null>(null);
-
+	const { parseFile } = useParseToXLS();
 	const { handleChangeFile } = useFileReader({
-		async fnArrayBuffer(arrayBuffer, file) {
+		async fnArrayBuffer(_, file) {
 			if (
 				file.type !==
 				"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 			) {
 				throw new Error("Arquivo Inválido");
 			}
-			const data = await parseToXLS<UploadedData[]>(arrayBuffer);
+			const data = await parseFile(file);
 			const value = data.map((item, index) => {
 				return {
 					...item,
-					Temperature: Number(item.Temperature),
-					Position: item.Position,
-					Supply: null,
-					Return: null,
+					temperature: Number(item.temperature),
+					position: item.position,
+					supply: null,
+					return: null,
 					id: index + 1,
 				};
 			});
+
 			if (!props.onChangeFile) return;
 			props.onChangeFile(value);
 		},

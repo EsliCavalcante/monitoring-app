@@ -19,8 +19,6 @@ import { formatTemperature } from "@/utils/formatTemperature";
 
 import { Spinner } from "@/components/ui/spinner";
 
-import { DownloadBtn } from "@/features/monitoringDownload";
-
 import { HeaderForm } from "@/features/documentHeaderForm";
 import { ArchiveUplodBtn } from "@/features/uploadArchive";
 import type { UploadedData } from "@/utils/@types";
@@ -117,6 +115,8 @@ const TemperatureListPage = () => {
 					<TempGeneratorBtn
 						disabled={uploadedData.length > 0 ? false : true}
 						onGeneratorTemp={(data) => {
+							console.log(data);
+
 							setOriginalData(data);
 						}}
 						data={uploadedData}
@@ -210,7 +210,7 @@ const TemperatureListPage = () => {
 													<TableCell className="text-left p-0">
 														<input
 															ref={inputTempRef}
-															key={page.Container}
+															key={page.container}
 															onBlur={(e) => {
 																const value =
 																	e
@@ -219,14 +219,14 @@ const TemperatureListPage = () => {
 
 																editPageData({
 																	...page,
-																	Container:
+																	container:
 																		value,
 																});
 															}}
 															className="text-center uppercase  outline-0"
 															type="text"
 															defaultValue={
-																page.Container
+																page.container
 															}
 														/>
 													</TableCell>
@@ -234,7 +234,7 @@ const TemperatureListPage = () => {
 														<input
 															ref={inputTempRef}
 															key={
-																page.Temperature
+																page.temperature
 															}
 															onBlur={(e) => {
 																const value =
@@ -244,7 +244,7 @@ const TemperatureListPage = () => {
 
 																editPageData({
 																	...page,
-																	Temperature:
+																	temperature:
 																		value ===
 																			"" ||
 																		value ===
@@ -261,25 +261,25 @@ const TemperatureListPage = () => {
 															type="text"
 															defaultValue={(() => {
 																if (
-																	page.Temperature ===
+																	page.temperature ===
 																	null
 																) {
 																	return " ";
 																}
 																return formatTemperature(
 																	Number(
-																		page.Temperature
+																		page.temperature
 																	)
 																);
 															})()}
 														/>
 													</TableCell>
 													<TableCell className="text-center p-0">
-														{page.Position}
+														{page.position}
 													</TableCell>
 													<TableCell className="text-center p-1 md:p-2">
 														<input
-															key={page.Supply}
+															key={page.supply}
 															onBlur={(e) => {
 																const value =
 																	e
@@ -288,7 +288,46 @@ const TemperatureListPage = () => {
 
 																editPageData({
 																	...page,
-																	Supply:
+																	supply:
+																		value ===
+																			"" ||
+																		value ===
+																			" "
+																			? null
+																			: Number(
+																					value
+																			  ),
+																});
+															}}
+															className="text-center outline-0"
+															type="text"
+															defaultValue={(() => {
+																if (
+																	page.supply ===
+																	null
+																) {
+																	return " ";
+																}
+
+																return formatTemperature(
+																	Number(
+																		page.supply
+																	)
+																);
+															})()}
+														/>
+													</TableCell>
+													<TableCell className="text-center p-1 md:p-2">
+														<input
+															key={page.return}
+															onBlur={(e) => {
+																const value =
+																	e
+																		.currentTarget
+																		.value;
+																editPageData({
+																	...page,
+																	return:
 																		value ===
 																			"" ||
 																		value ===
@@ -305,15 +344,14 @@ const TemperatureListPage = () => {
 															type="text"
 															defaultValue={(() => {
 																if (
-																	page.Supply ===
+																	page.return ===
 																	null
 																) {
 																	return " ";
 																}
-
 																return formatTemperature(
 																	Number(
-																		page.Supply
+																		page.return
 																	)
 																);
 															})()}
@@ -321,7 +359,7 @@ const TemperatureListPage = () => {
 													</TableCell>
 													<TableCell className="text-center p-1 md:p-2">
 														<input
-															key={page.Return}
+															key={page.remarks}
 															onBlur={(e) => {
 																const value =
 																	e
@@ -329,54 +367,17 @@ const TemperatureListPage = () => {
 																		.value;
 																editPageData({
 																	...page,
-																	Return:
-																		value ===
-																			"" ||
-																		value ===
-																			" "
-																			? null
-																			: Number(
-																					value.split(
-																						"ºC"
-																					)[0]
-																			  ),
-																});
-															}}
-															className="text-center outline-0"
-															type="text"
-															defaultValue={(() => {
-																if (
-																	page.Return ===
-																	null
-																) {
-																	return " ";
-																}
-																return formatTemperature(
-																	Number(
-																		page.Return
-																	)
-																);
-															})()}
-														/>
-													</TableCell>
-													<TableCell className="text-center p-1 md:p-2">
-														<input
-															key={page.Remarks}
-															onBlur={(e) => {
-																const value =
-																	e
-																		.currentTarget
-																		.value;
-																editPageData({
-																	...page,
-																	Remarks:
+																	remarks:
 																		value,
 																});
 															}}
 															className="text-center outline-0"
 															type="text"
 															defaultValue={
-																page.Remarks
+																page.remarks ===
+																null
+																	? ""
+																	: page.remarks
 															}
 														/>
 													</TableCell>

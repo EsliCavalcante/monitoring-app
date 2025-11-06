@@ -1,11 +1,11 @@
 export type UploadedData = {
 	id: number;
-	Container: string;
-	Temperature: number | null;
-	Position: string;
-	Supply: number | null;
-	Return: number | null;
-	Remarks: string;
+	container: string;
+	temperature: number | null;
+	position?: string | null;
+	supply: number | null;
+	return: number | null;
+	remarks: string | null;
 };
 
 export type SettingType = {

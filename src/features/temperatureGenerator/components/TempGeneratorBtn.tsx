@@ -22,16 +22,16 @@ const TempGeneratorBtn = ({
 				const value = data.map((item) => {
 					return {
 						...item,
-						Supply:
-							item.Temperature !== null
+						supply:
+							item.temperature !== null
 								? temperatureGenaretor().supply(
-										item.Temperature
+										item.temperature
 								  )
 								: null,
-						Return:
-							item.Temperature !== null
+						return:
+							item.temperature !== null
 								? temperatureGenaretor().return(
-										item.Temperature
+										item.temperature
 								  )
 								: null,
 					} as UploadedData;
