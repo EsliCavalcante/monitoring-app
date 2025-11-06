@@ -35,9 +35,9 @@ export function usePagination<T>({
 
 				const searcheted = originalData.filter((predicate) => {
 					const value = predicate as any;
-					return value.Container.toLowerCase().includes(
-						searchByContainer?.toLowerCase()
-					);
+					return value.container
+						.toLowerCase()
+						.includes(searchByContainer?.toLowerCase());
 				});
 
 				if (searcheted.length === 0) return searcheted;

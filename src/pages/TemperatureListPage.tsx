@@ -29,17 +29,13 @@ import {
 	LabelCustom,
 } from "@/components/input";
 
-import React, { Suspense } from "react";
+import { DownloadBtn } from "@/features/monitoringDownload";
+import { PreviewBtn } from "@/features/documentPreview";
 
 const TemperatureListPage = () => {
 	const { uploadedData, setUploadedData, setSettings, settings } =
 		useUploadedData();
-	const LazyPreviewBtn = React.lazy(
-		() => import("../features/documentPreview/components/PreviewBtn")
-	);
-	const LazyDownloadBtn = React.lazy(
-		() => import("../features/monitoringDownload/components/DownloadBtn")
-	);
+
 	const {
 		getRemainingPages,
 		editPageData,
@@ -92,16 +88,14 @@ const TemperatureListPage = () => {
 						Monitoramento de temperatura{" "}
 					</h2>
 
-					<Suspense fallback={<div>Carregado documento...</div>}>
-						<LazyPreviewBtn
-							disabled={uploadedData.length > 0 ? false : true}
-							data={uploadedData}
-							setting={settings}
-							onChangeFile={(isLoading) => {
-								setIsPdfLoading(isLoading);
-							}}
-						/>
-					</Suspense>
+					<PreviewBtn
+						disabled={uploadedData.length > 0 ? false : true}
+						data={uploadedData}
+						setting={settings}
+						onChangeFile={(isLoading) => {
+							setIsPdfLoading(isLoading);
+						}}
+					/>
 				</div>
 			</div>
 			<div className="font-base    bg-gradient-to-r from-custom-geadient-blue to-custom-geadient-blue-dark  rounded-xs sm:rounded-none">
@@ -122,15 +116,12 @@ const TemperatureListPage = () => {
 						data={uploadedData}
 					/>
 
-					<Suspense
-						fallback={<div>Carregando arquivo para download</div>}
-					>
-						<LazyDownloadBtn
-							disabled={uploadedData.length > 0 ? false : true}
-							data={uploadedData}
-							settings={settings}
-						/>
-					</Suspense>
+					<DownloadBtn
+						disabled={uploadedData.length > 0 ? false : true}
+						data={uploadedData}
+						settings={settings}
+					/>
+
 					<ArchiveUplodBtn
 						onChangeFile={(data) => {
 							setUploadedData(data);
@@ -167,7 +158,7 @@ const TemperatureListPage = () => {
 											<TableHead className="w-10 text-center text-white">
 												Qty{" "}
 											</TableHead>
-											<TableHead className="w-10 space-x-2 text-left text-white">
+											<TableHead className="w-10 space-x-2 text-center text-white">
 												<p className="inline-block">
 													Container
 												</p>
